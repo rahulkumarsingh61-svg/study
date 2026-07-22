@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studify - The Study App</title>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Class Selector Bar */
+        .class-selector {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .class-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.4rem;
+            white-space: nowrap;
+            font-size: 0.95rem;
+        }
+
+        .class-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Section Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border-radius: 0;
+            color: var(--text-muted);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .main-layout {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .video-player-container {
+            background: #000;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .video-player-container iframe, .video-player-container video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .video-placeholder {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            background: #1e293b;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .video-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .thumbnail-mock {
+            background: #cbd5e1;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text-muted);
+        }
+
+        .video-info {
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Quiz Box Styling */
+        .quiz-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: #e0e7ff;
+        }
+
+        /* Admin & Login Panels */
+        .admin-panel, .login-panel {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .login-panel {
+            max-width: 400px;
+            margin: 4rem auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+
+        .admin-table th, .admin-table td {
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .admin-table th { background: var(--bg); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Studify <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);">The Study App (CBSE Maths)</span></div>
+        <div class="nav-actions">
+            <button id="adminToggleBtn" class="btn-primary" onclick="handleAdminNavClick()">Admin Dashboard</button>
+        </div>
+    </header>
+
+    <div class="container" id="userView">
+        <h2 style="margin-bottom: 1rem;">Select Class:</h2>
+        <div class="class-selector" id="classSelector"></div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tabVideosBtn" onclick="switchTab('videos')">📺 Video Lessons</button>
+            <button class="tab-btn" id="tabQuizBtn" onclick="switchTab('quiz')">📝 Practice & Quizzes</button>
+        </div>
+
+        <div id="videosSection">
+            <div class="main-layout">
+                <div>
+                    <div class="video-player-container">
+                        <div id="videoPlayerPlaceholder" class="video-placeholder">
+                            <h2>Welcome to Studify</h2>
+                            <p style="margin-top: 0.5rem;">Select any math lesson from the list to start watching in-app.</p>
+                        </div>
+                        <div id="playerFrameContainer" style="display: none; width:100%; height:100%;"></div>
+                    </div>
+                    <h2 id="nowPlayingTitle" style="margin-top: 1rem; font-size: 1.25rem;"></h2>
+                </div>
+                
+                <div>
+                    <h3 style="margin-bottom: 1rem;">Available Lessons</h3>
+                    <div class="video-grid" id="videoContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="quizSection" style="display: none;">
+            <div id="quizContainer"></div>
+        </div>
+    </div>
+
+    <div class="container login-panel" id="loginPanel">
+        <h2 style="margin-bottom: 1rem; text-align: center;">Admin Security Access</h2>
+        <div id="loginError" style="color: red; margin-bottom: 1rem; font-weight: 600; display: none; text-align: center;">Invalid Credentials!</div>
+        <form onsubmit="tryAdminLogin(event)">
+            <div class="form-group">
+                <label>Admin Username</label>
+                <input type="text" id="adminUser" class="form-control" required placeholder="Enter username...">
+            </div>
+            <div class="form-group">
+                <label>Admin Password</label>
+                <input type="password" id="adminPass" class="form-control" required placeholder="Enter password...">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 0.75rem;">Verify & Authenticate</button>
+            <button type="button" class="btn-outline" style="width: 100%; margin-top: 0.5rem;" onclick="showUserView()">Cancel</button>
+        </form>
+    </div>
+
+    <div class="container admin-panel" id="adminPanel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Admin Video Upload Dashboard</h2>
+            <div>
+                <button class="btn-outline" style="color: #ef4444; border-color: #fca5a5; margin-right: 0.5rem;" onclick="adminLogout()">Log Out</button>
+                <button class="btn-primary" onclick="showUserView()">View Main App</button>
+            </div>
+        </div>
+
+        <form id="videoForm" onsubmit="saveNewVideo(event)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label>Video Title</label>
+                    <input type="text" id="vidTitle" class="form-control" placeholder="e.g., Rational Numbers Class 8" required>
+                </div>
+                <div class="form-group">
+                    <label>Target Class (CBSE Maths)</label>
+                    <select id="vidClass" class="form-control" required>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Video Source Type</label>
+                <select id="vidSourceType" class="form-control" onchange="toggleSourceInputs()" required>
+                    <option value="local">Upload Existing Video File (.mp4 / .webm)</option>
+                    <option value="youtube">YouTube Embed Link</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="localInputGroup">
+                <label>Select Saved Video File from Device</label>
+                <input type="file" id="vidFile" class="form-control" accept="video/mp4,video/webm">
+            </div>
+
+            <div class="form-group" id="youtubeInputGroup" style="display: none;">
+                <label>YouTube Embed Link</label>
+                <input type="text" id="vidUrl" class="form-control" placeholder="https://www.youtube.com/embed/XXXXXX">
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%; padding: 0.75rem;">Upload & Publish Video</button>
+        </form>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Title</th>
+                    <th>Source</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="adminTableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const initialVideos = [
+            { id: 1, title: "Class 8: Rational Numbers Overview", class: "8", source: "youtube", url: "https://www.youtube.com/embed/5aMek2G24R8" }
+        ];
+
+        const sampleQuizzes = {
+            "1": [
+                { q: "1. What comes right after the number 14?", options: ["13", "15", "16", "12"], ans: 1 },
+                { q: "2. How many sides does a triangle have?", options: ["2", "3", "4", "5"], ans: 1 },
+                { q: "3. What is 5 + 3?", options: ["7", "8", "9", "6"], ans: 1 }
+            ],
+            "2": [
+                { q: "1. What is 25 + 14?", options: ["39", "38", "40", "29"], ans: 0 },
+                { q: "2. What is 50 - 20?", options: ["20", "30", "40", "10"], ans: 1 },
+                { q: "3. Which number is even?", options: ["7", "11", "14", "21"], ans: 2 }
+            ],
+            "3": [
+                { q: "1. What is 7 × 6?", options: ["42", "36", "48", "54"], ans: 0 },
+                { q: "2. Place value of 5 in 542 is:", options: ["5", "50", "500", "5000"], ans: 2 },
+                { q: "3. What is 100 ÷ 10?", options: ["1", "5", "10", "100"], ans: 2 }
+            ],
+            "4": [
+                { q: "1. Perimeter of a square with side 5 cm is:", options: ["20 cm", "25 cm", "10 cm", "15 cm"], ans: 0 },
+                { q: "2. Convert 3 km into metres:", options: ["30 m", "300 m", "3000 m", "30000 m"], ans: 2 },
+                { q: "3. What is 1/2 + 1/2?", options: ["1/4", "1", "2/4", "2"], ans: 1 }
+            ],
+            "5": [
+                { q: "1. What is the area of a rectangle with length 8 cm and breadth 5 cm?", options: ["13 cm²", "40 cm²", "26 cm²", "35 cm²"], ans: 1 },
+                { q: "2. Smallest prime number is:", options: ["0", "1", "2", "3"], ans: 2 },
+                { q: "3. Simplify: 0.5 + 0.25", options: ["0.30", "0.75", "0.80", "1.00"], ans: 1 }
+            ],
+            "6": [
+                { q: "1. What is the HCF of 12 and 18?", options: ["2", "3", "6", "36"], ans: 2 },
+                { q: "2. An angle measuring 90° is called a:", options: ["Acute angle", "Right angle", "Obtuse angle", "Straight angle"], ans: 1 },
+                { q: "3. Solve: (-10) + (+5)", options: ["-15", "-5", "5", "15"], ans: 1 }
+            ],
+            "7": [
+                { q: "1. What is (-5) + (-8)?", options: ["-13", "13", "-3", "3"], ans: 0 },
+                { q: "2. Complement of 30° is:", options: ["60°", "150°", "90°", "180°"], ans: 0 },
+                { q: "3. Solve the equation: 2x = 10", options: ["x = 20", "x = 5", "x = 8", "x = 12"], ans: 1 }
+            ],
+            "8": [
+                { q: "1. What is the additive inverse of 2/8?", options: ["-2/8", "8/2", "2/8", "-8/2"], ans: 0 },
+                { q: "2. Which of the following is a rational number?", options: ["0", "5", "2/3", "All of these"], ans: 3 },
+                { q: "3. What is the square of 12?", options: ["124", "144", "169", "120"], ans: 1 },
+                { q: "4. Sum of interior angles of a quadrilateral is:", options: ["180°", "270°", "360°", "540°"], ans: 2 }
+            ],
+            "9": [
+                { q: "1. Which of the following is an irrational number?", options: ["√4", "√9", "√2", "0.25"], ans: 2 },
+                { q: "2. Degree of a non-zero constant polynomial is:", options: ["0", "1", "2", "Undefined"], ans: 0 },
+                { q: "3. In which quadrant does the point (-3, 4) lie?", options: ["1st Quadrant", "2nd Quadrant", "3rd Quadrant", "4th Quadrant"], ans: 1 }
+            ]
+        };
+
+        let videos = JSON.parse(localStorage.getItem('studify_videos')) || initialVideos;
+        let isAdminLoggedIn = false;
+        let selectedClass = "8";
+
+        window.onload = function() {
+            renderClassSelectors();
+            renderUserVideos();
+            renderAdminTable();
+            renderQuiz();
+        }
+
+        function switchTab(tab) {
+            document.getElementById('videosSection').style.display = tab === 'videos' ? 'block' : 'none';
+            document.getElementById('quizSection').style.display = tab === 'quiz' ? 'block' : 'none';
+            document.getElementById('tabVideosBtn').className = `tab-btn ${tab === 'videos' ? 'active' : ''}`;
+            document.getElementById('tabQuizBtn').className = `tab-btn ${tab === 'quiz' ? 'active' : ''}`;
+        }
+
+        function toggleSourceInputs() {
+            const type = document.getElementById('vidSourceType').value;
+            document.getElementById('localInputGroup').style.display = type === 'local' ? 'block' : 'none';
+            document.getElementById('youtubeInputGroup').style.display = type === 'youtube' ? 'block' : 'none';
+        }
+
+        function renderClassSelectors() {
+            const container = document.getElementById('classSelector');
+            container.innerHTML = '';
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.createElement('button');
+                btn.className = `class-btn ${selectedClass === String(i) ? 'active' : ''}`;
+                btn.innerText = `Class ${i}`;
+                btn.onclick = () => selectClass(String(i));
+                container.appendChild(btn);
+            }
+        }
+
+        function selectClass(classNum) {
+            selectedClass = classNum;
+            renderClassSelectors();
+            renderUserVideos();
+            renderQuiz();
+        }
+
+        function renderUserVideos() {
+            const container = document.getElementById('videoContainer');
+            container.innerHTML = '';
+
+            const filtered = videos.filter(v => v.class === selectedClass);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-muted); padding: 1rem;">No lessons added for Class ${selectedClass} yet.</p>`;
+                return;
+            }
+
+            filtered.forEach(video => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.onclick = () => startVideoPlayback(video);
+
+                card.innerHTML = `
+                    <div class="thumbnail-mock">
+                        Maths Class ${video.class}
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div style="font-size:0.8rem; color: var(--text-muted); margin-top:0.25rem;">
+                            ▶ Play In-App (${video.source.toUpperCase()})
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+            const quizList = sampleQuizzes[selectedClass] || [];
+
+            if (quizList.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-muted); padding:1rem;">No practice quizzes available for Class ${selectedClass} yet.</p>`;
+                return;
+            }
+
+            quizList.forEach((qObj, idx) => {
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+                
+                let optionsHTML = '';
+                qObj.options.forEach((opt, optIdx) => {
+                    optionsHTML += `<button class="quiz-option" onclick="checkAnswer(${idx}, ${optIdx}, ${qObj.ans}, this)">${opt}</button>`;
+                });
+
+                card.innerHTML = `
+                    <h3>${qObj.q}</h3>
+                    <div style="margin-top:1rem;">${optionsHTML}</div>
+                    <div id="quizResult${idx}" style="margin-top:0.5rem; font-weight:bold;"></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function checkAnswer(qIdx, selectedOpt, correctOpt, btn) {
+            const resultDiv = document.getElementById(`quizResult${qIdx}`);
+            if (selectedOpt === correctOpt) {
+                resultDiv.style.color = "var(--success)";
+                resultDiv.innerText = "✅ Correct Answer!";
+            } else {
+                resultDiv.style.color = "#ef4444";
+                resultDiv.innerText = "❌ Incorrect. Try again!";
+            }
+        }
+
+        /* IN-APP PLAYBACK ENGINE */
+        function startVideoPlayback(video) {
+            const placeholder = document.getElementById('videoPlayerPlaceholder');
+            const frameContainer = document.getElementById('playerFrameContainer');
+            const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+
+            placeholder.style.display = 'none';
+            frameContainer.style.display = 'block';
+            
+            if (video.source === 'youtube') {
+                let embedUrl = video.url;
+                if(embedUrl.includes('watch?v=')) {
+                    embedUrl = embedUrl.replace('watch?v=', 'embed/');
+                }
+                frameContainer.innerHTML = `<iframe src="${embedUrl}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            } else {
+                frameContainer.innerHTML = `<video src="${video.url}" controls autoplay controlsList="nodownload"></video>`;
+            }
+
+            nowPlayingTitle.innerText = `Now Playing: ${video.title}`;
+        }
+
+        /* ADMIN AUTHENTICATION */
+        function handleAdminNavClick() {
+            if (isAdminLoggedIn) { showAdminDashboard(); } else { showLoginGate(); }
+        }
+
+        function showLoginGate() {
+            document.getElementById('userView').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('loginPanel').style.display = 'block';
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function tryAdminLogin(e) {
+            e.preventDefault();
+            if (document.getElementById('adminUser').value === "Studify" && document.getElementById('adminPass').value === "Study") {
+                isAdminLoggedIn = true;
+                document.getElementById('adminUser').value = '';
+                document.getElementById('adminPass').value = '';
+                showAdminDashboard();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('userView').style.display = 'none';
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+        }
+
+        function showUserView() {
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('userView').style.display = 'block';
+        }
+
+        function adminLogout() {
+            isAdminLoggedIn = false;
+            showUserView();
+        }
+
+        /* UPLOAD & STORAGE OPERATIONS */
+        function saveNewVideo(e) {
+            e.preventDefault();
+            const title = document.getElementById('vidTitle').value;
+            const classVal = document.getElementById('vidClass').value;
+            const source = document.getElementById('vidSourceType').value;
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (source === 'youtube') {
+                const targetUrl = document.getElementById('vidUrl').value;
+                completeVideoSave(Date.now(), title, classVal, source, targetUrl);
+            } else {
+                const fileInput = document.getElementById('vidFile');
+                if (fileInput.files.length === 0) {
+                    alert("Please select an existing video file from your device first!");
+                    return;
+                }
+                const file = fileInput.files[0];
+                
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Processing & Saving Video File...";
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64VideoData = event.target.result;
+                    completeVideoSave(Date.now(), title, classVal, source, base64VideoData);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Upload & Publish Video";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function completeVideoSave(id, title, classVal, source, url) {
+            const entry = { id, title, class: classVal, source, url };
+            videos.push(entry);
+            
+            try {
+                localStorage.setItem('studify_videos', JSON.stringify(videos));
+                alert("Video published successfully!");
+            } catch (err) {
+                alert("Storage limit reached! Try uploading smaller video files or shorter clips.");
+            }
+            
+            document.getElementById('videoForm').reset();
+            toggleSourceInputs();
+            renderAdminTable();
+            renderUserVideos();
+        }
+
+        function deleteVideo(id) {
+            if(confirm("Delete this lesson from the platform?")) {
+                videos = videos.filter(v => v.id !== id);
+                localStorage.setItem('studify_videos', JSON.stringify(videos));
+                renderAdminTable();
+                renderUserVideos();
+            }
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+
+            videos.sort((a,b) => a.class - b.class).forEach(video => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>Class ${video.class}</strong></td>
+                    <td>${video.title}</td>
+                    <td><span style="font-size:0.85rem">${video.source.toUpperCase()}</span></td>
+                    <td><button class="btn-outline" style="color:red; border-color:#fca5a5; padding: 0.25rem 0.5rem;" onclick="deleteVideo(${video.id})">Delete</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
